@@ -1,0 +1,9 @@
+{
+	"name": "dtfjobs",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "924a7adc-f31f-453d-b92e-a254a242c41c",
+		"tenantId": "11dbbfe2-89b8-4549-be10-cec364e59551"
+	}
+}
