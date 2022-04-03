@@ -133,7 +133,7 @@
 						"coreCount": 8,
 						"computeType": "General"
 					},
-					"traceLevel": "Coarse"
+					"traceLevel": "Fine"
 				}
 			}
 		],
