@@ -1,0 +1,127 @@
+{
+	"name": "vw_acoes",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "JOBSQL",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "Papel",
+				"type": "varchar"
+			},
+			{
+				"name": "Cotação",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "P/L",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "P/VP",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "PSR",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "Div.Yield",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "P/Ativo",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "P/Cap.Giro",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "P/EBIT",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "P/Ativ Circ.Liq",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "EV/EBIT",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "EV/EBITDA",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "Mrg Ebit",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "Mrg. Líq.",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "Liq. Corr.",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "ROIC",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "ROE",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "Liq.2meses",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "Patrim. Líq",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "Dív.Brut/ Patrim.",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "Cresc. Rec.5a",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "Extact_date",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "vw_acoes_stageII"
+		}
+	}
+}

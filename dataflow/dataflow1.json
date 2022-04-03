@@ -1,0 +1,68 @@
+{
+	"name": "dataflow1",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "vw_acoes",
+						"type": "DatasetReference"
+					},
+					"name": "STAGE1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "acoes_stage_II",
+						"type": "DatasetReference"
+					},
+					"name": "STAGEII"
+				}
+			],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          Papel as string,",
+				"          {Cotação} as double,",
+				"          {P/L} as double,",
+				"          {P/VP} as double,",
+				"          PSR as double,",
+				"          {Div.Yield} as double,",
+				"          {P/Ativo} as double,",
+				"          {P/Cap.Giro} as double,",
+				"          {P/EBIT} as double,",
+				"          {P/Ativ Circ.Liq} as double,",
+				"          {EV/EBIT} as double,",
+				"          {EV/EBITDA} as double,",
+				"          {Mrg Ebit} as double,",
+				"          {Mrg. Líq.} as double,",
+				"          {Liq. Corr.} as double,",
+				"          ROIC as double,",
+				"          ROE as double,",
+				"          {Liq.2meses} as double,",
+				"          {Patrim. Líq} as double,",
+				"          {Dív.Brut/ Patrim.} as double,",
+				"          {Cresc. Rec.5a} as double,",
+				"          Extact_date as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> STAGE1",
+				"STAGE1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     truncate:true,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> STAGEII"
+			]
+		}
+	}
+}
