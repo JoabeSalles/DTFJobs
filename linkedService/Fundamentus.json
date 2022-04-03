@@ -1,0 +1,12 @@
+{
+	"name": "Fundamentus",
+	"properties": {
+		"annotations": [],
+		"type": "HttpServer",
+		"typeProperties": {
+			"url": "https://www.fundamentus.com.br/resultado.php",
+			"enableServerCertificateValidation": true,
+			"authenticationType": "Anonymous"
+		}
+	}
+}
