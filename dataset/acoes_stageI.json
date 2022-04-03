@@ -1,0 +1,17 @@
+{
+	"name": "acoes_stageI",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "JOBSQL",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"acoes": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": []
+	}
+}
