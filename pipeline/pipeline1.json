@@ -53,7 +53,7 @@
 				]
 			},
 			{
-				"name": "CopyDatabase",
+				"name": "COPY_DATABASE",
 				"type": "Copy",
 				"dependsOn": [
 					{
@@ -77,12 +77,9 @@
 					},
 					"sink": {
 						"type": "AzureSqlSink",
+						"preCopyScript": "Truncate Table dbo.acoes",
 						"writeBehavior": "insert",
 						"sqlWriterUseTableLock": false,
-						"tableOption": {
-							"value": "\"acoes_stage1\"",
-							"type": "Expression"
-						},
 						"disableMetricsCollection": false
 					},
 					"enableStaging": false,
@@ -103,7 +100,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "acoes_stage1",
+						"referenceName": "acoes_stageI",
 						"type": "DatasetReference"
 					}
 				]
