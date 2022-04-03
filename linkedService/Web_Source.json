@@ -1,0 +1,15 @@
+{
+	"name": "Web_Source",
+	"properties": {
+		"annotations": [],
+		"type": "Web",
+		"typeProperties": {
+			"url": "https://www.fundamentus.com.br/resultado.php/",
+			"authenticationType": "Anonymous"
+		},
+		"connectVia": {
+			"referenceName": "JobsPc",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}
