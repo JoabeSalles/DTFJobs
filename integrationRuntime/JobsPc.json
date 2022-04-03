@@ -1,0 +1,6 @@
+{
+	"name": "JobsPc",
+	"properties": {
+		"type": "SelfHosted"
+	}
+}
