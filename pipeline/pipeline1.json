@@ -77,7 +77,7 @@
 					},
 					"sink": {
 						"type": "AzureSqlSink",
-						"preCopyScript": "DELETE FROM dbo.acoes",
+						"preCopyScript": "DELETE FROM [dbo].[acoes_stageI]",
 						"writeBehavior": "insert",
 						"sqlWriterUseTableLock": false,
 						"disableMetricsCollection": false
