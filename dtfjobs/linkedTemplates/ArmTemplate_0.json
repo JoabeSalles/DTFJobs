@@ -1,0 +1,576 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "dtfjobs"
+		},
+		"JOBSDL_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'JOBSDL'"
+		},
+		"JOBSQL_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'JOBSQL'"
+		},
+		"JOBSDL_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://jobscloud.dfs.core.windows.net"
+		},
+		"Web_Source_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://www.fundamentus.com.br/resultado.php/"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/JOBSDL')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('JOBSDL_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('JOBSDL_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/JOBSQL')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"connectionString": "[parameters('JOBSQL_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/JobsPc')]",
+			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "SelfHosted",
+				"typeProperties": {}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/VMAzure')]",
+			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "Managed",
+				"typeProperties": {
+					"computeProperties": {
+						"location": "East US",
+						"dataFlowProperties": {
+							"computeType": "General",
+							"coreCount": 8,
+							"timeToLive": 10,
+							"cleanup": false
+						}
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/acoes_csv')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "JOBSDL",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@utcnow()",
+							"type": "Expression"
+						},
+						"folderPath": "Cloud Computing",
+						"fileSystem": "bronze"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/JOBSDL')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/acoes_stageI')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "JOBSQL",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "acoes_stageI"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/JOBSQL')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/acoes_stage_II')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "JOBSQL",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "acoes_stageII"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/JOBSQL')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/vw_acoes')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "JOBSQL",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Papel",
+						"type": "varchar"
+					},
+					{
+						"name": "Cotação",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "P/L",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "P/VP",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "PSR",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "Div.Yield",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "P/Ativo",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "P/Cap.Giro",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "P/EBIT",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "P/Ativ Circ.Liq",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "EV/EBIT",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "EV/EBITDA",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "Mrg Ebit",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "Mrg. Líq.",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "Liq. Corr.",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "ROIC",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "ROE",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "Liq.2meses",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "Patrim. Líq",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "Dív.Brut/ Patrim.",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "Cresc. Rec.5a",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "Extact_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "vw_acoes_stageII"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/JOBSQL')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Web_Source')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "Web",
+				"typeProperties": {
+					"url": "[parameters('Web_Source_properties_typeProperties_url')]",
+					"authenticationType": "Anonymous"
+				},
+				"connectVia": {
+					"referenceName": "JobsPc",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/integrationRuntimes/JobsPc')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Acoes_WEB')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Web_Source",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "WebTable",
+				"schema": [],
+				"typeProperties": {
+					"index": 0
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Web_Source')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow1')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "vw_acoes",
+								"type": "DatasetReference"
+							},
+							"name": "STAGE1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "acoes_stage_II",
+								"type": "DatasetReference"
+							},
+							"name": "STAGEII"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          Papel as string,",
+						"          {Cotação} as double,",
+						"          {P/L} as double,",
+						"          {P/VP} as double,",
+						"          PSR as double,",
+						"          {Div.Yield} as double,",
+						"          {P/Ativo} as double,",
+						"          {P/Cap.Giro} as double,",
+						"          {P/EBIT} as double,",
+						"          {P/Ativ Circ.Liq} as double,",
+						"          {EV/EBIT} as double,",
+						"          {EV/EBITDA} as double,",
+						"          {Mrg Ebit} as double,",
+						"          {Mrg. Líq.} as double,",
+						"          {Liq. Corr.} as double,",
+						"          ROIC as double,",
+						"          ROE as double,",
+						"          {Liq.2meses} as double,",
+						"          {Patrim. Líq} as double,",
+						"          {Dív.Brut/ Patrim.} as double,",
+						"          {Cresc. Rec.5a} as double,",
+						"          Extact_date as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> STAGE1",
+						"STAGE1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     truncate:true,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> STAGEII"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/vw_acoes')]",
+				"[concat(variables('factoryId'), '/datasets/acoes_stage_II')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pipeline1')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Carga_Acoes",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "WebSource"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "Acoes_WEB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "acoes_csv",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "COPY_DATABASE",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Carga_Acoes",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "WebSource"
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"preCopyScript": "DELETE FROM [dbo].[acoes_stageI]",
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false,
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "Acoes_WEB",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "acoes_stageI",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Acoes_WEB')]",
+				"[concat(variables('factoryId'), '/datasets/acoes_csv')]",
+				"[concat(variables('factoryId'), '/datasets/acoes_stageI')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Carga Diaria')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "pipeline1",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Day",
+						"interval": 1,
+						"startTime": "2022-04-04T10:00:00",
+						"timeZone": "E. South America Standard Time",
+						"schedule": {
+							"minutes": [
+								0
+							],
+							"hours": [
+								5
+							]
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/pipeline1')]"
+			]
+		}
+	]
+}

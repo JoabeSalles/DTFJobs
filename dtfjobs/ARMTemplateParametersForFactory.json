@@ -1,0 +1,21 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "dtfjobs"
+		},
+		"JOBSDL_accountKey": {
+			"value": ""
+		},
+		"JOBSQL_connectionString": {
+			"value": ""
+		},
+		"JOBSDL_properties_typeProperties_url": {
+			"value": "https://jobscloud.dfs.core.windows.net"
+		},
+		"Web_Source_properties_typeProperties_url": {
+			"value": "https://www.fundamentus.com.br/resultado.php/"
+		}
+	}
+}
