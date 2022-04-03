@@ -1,0 +1,20 @@
+{
+	"name": "Acoes_Parquet",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "JOBSDL",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "Cloud Computing",
+				"fileSystem": "bronze"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}
