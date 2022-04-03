@@ -1,5 +1,5 @@
 {
-	"name": "dataflow1",
+	"name": "Carga_DB_ACOES",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
@@ -57,7 +57,7 @@
 				"     insertable:true,",
 				"     updateable:false,",
 				"     upsertable:false,",
-				"     truncate:true,",
+				"     recreate:true,",
 				"     format: 'table',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
