@@ -77,7 +77,7 @@
 					},
 					"sink": {
 						"type": "AzureSqlSink",
-						"preCopyScript": "Truncate Table dbo.acoes",
+						"preCopyScript": "DELETE FROM dbo.acoes",
 						"writeBehavior": "insert",
 						"sqlWriterUseTableLock": false,
 						"disableMetricsCollection": false
