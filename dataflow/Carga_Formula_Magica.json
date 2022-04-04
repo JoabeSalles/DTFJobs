@@ -1,0 +1,59 @@
+{
+	"name": "Carga_Formula_Magica",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "vw_formula_magica",
+						"type": "DatasetReference"
+					},
+					"name": "Origem"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "formula_magica",
+						"type": "DatasetReference"
+					},
+					"name": "DestinoTable"
+				}
+			],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          Papel as string,",
+				"          {Ranking EV/EBIT} as long,",
+				"          {Ranking ROIC} as long,",
+				"          Form_Magica as long,",
+				"          {EV/EBIT} as double,",
+				"          {Div.Yield} as double,",
+				"          {Mrg Ebit} as double,",
+				"          {Mrg. Líq.} as double,",
+				"          {Liq. Corr.} as double,",
+				"          ROIC as double,",
+				"          ROE as double,",
+				"          {Cresc. Rec.5a} as double,",
+				"          Extact_date as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> Origem",
+				"Origem sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     recreate:true,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> DestinoTable"
+			]
+		}
+	}
+}

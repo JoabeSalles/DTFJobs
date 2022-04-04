@@ -1,0 +1,16 @@
+{
+	"name": "formula_magica",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "JOBSQL",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "formula_magica"
+		}
+	}
+}
