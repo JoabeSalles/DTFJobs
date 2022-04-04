@@ -163,6 +163,27 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/formula_magica')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "JOBSQL",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "formula_magica"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/JOBSQL')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/vw_acoes')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -295,6 +316,92 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/vw_formula_magica')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "JOBSQL",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Papel",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Ranking EV/EBIT",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "Ranking ROIC",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "Form_Magica",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "EV/EBIT",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "Div.Yield",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "Mrg Ebit",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "Mrg. Líq.",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "Liq. Corr.",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "ROIC",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "ROE",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "Cresc. Rec.5a",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "Extact_date",
+						"type": "datetime2",
+						"scale": 7
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "vw_formula_magica"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/JOBSQL')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Web_Source')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -406,6 +513,71 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/vw_acoes')]",
 				"[concat(variables('factoryId'), '/datasets/acoes_stage_II')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Carga_Formula_Magica')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "vw_formula_magica",
+								"type": "DatasetReference"
+							},
+							"name": "Origem"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "formula_magica",
+								"type": "DatasetReference"
+							},
+							"name": "DestinoTable"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          Papel as string,",
+						"          {Ranking EV/EBIT} as long,",
+						"          {Ranking ROIC} as long,",
+						"          Form_Magica as long,",
+						"          {EV/EBIT} as double,",
+						"          {Div.Yield} as double,",
+						"          {Mrg Ebit} as double,",
+						"          {Mrg. Líq.} as double,",
+						"          {Liq. Corr.} as double,",
+						"          ROIC as double,",
+						"          ROE as double,",
+						"          {Cresc. Rec.5a} as double,",
+						"          Extact_date as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> Origem",
+						"Origem sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     recreate:true,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> DestinoTable"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/vw_formula_magica')]",
+				"[concat(variables('factoryId'), '/datasets/formula_magica')]"
 			]
 		},
 		{
@@ -555,7 +727,44 @@
 								"coreCount": 8,
 								"computeType": "General"
 							},
-							"traceLevel": "Coarse"
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "FormulaMagica",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "Carga DB",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Carga_Formula_Magica",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"Origem": {},
+									"DestinoTable": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
 						}
 					}
 				],
@@ -569,7 +778,8 @@
 				"[concat(variables('factoryId'), '/datasets/Acoes_WEB')]",
 				"[concat(variables('factoryId'), '/datasets/acoes_csv')]",
 				"[concat(variables('factoryId'), '/datasets/acoes_stageI')]",
-				"[concat(variables('factoryId'), '/dataflows/Carga_DB_ACOES')]"
+				"[concat(variables('factoryId'), '/dataflows/Carga_DB_ACOES')]",
+				"[concat(variables('factoryId'), '/dataflows/Carga_Formula_Magica')]"
 			]
 		},
 		{
